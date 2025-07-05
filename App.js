@@ -1,20 +1,46 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import LoginScreen from './screens/LoginScreen';
+import SignUpScreen from './screens/SignUpScreen';
+import TabNavigator from './navigation/TabNavigator';
+
+import { Provider } from 'react-redux';         // Redux store provider
+import store from './redux/store';              // Your Redux store
+import { StripeProvider } from '@stripe/stripe-react-native';  // Stripe wrapper
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Provider store={store}>
+      <StripeProvider
+        publishableKey="pk_test_51RhPomH5KMUhAu9OxG64eCgv2mOc9YPTYhvZbXKf0PeboDSV3NgXl4fzzU86T3tn3J3zlFTqoESC7eoWk3wv7RbV00CT4rIB1n"
+        merchantIdentifier="merchant.com.walmart.hack athon" // iOS only
+        merchantCountryCode="IN"
+      >
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            {!isLoggedIn ? (
+              <>
+                <Stack.Screen name="Login">
+                  {(props) => <LoginScreen {...props} setIsLoggedIn={setIsLoggedIn} />}
+                </Stack.Screen>
+                <Stack.Screen name="Signup">
+                  {(props) => <SignUpScreen {...props} setIsLoggedIn={setIsLoggedIn} />}
+                </Stack.Screen>
+              </>
+            ) : (
+              <Stack.Screen name="MainTabs">
+                {(props) => <TabNavigator {...props} setIsLoggedIn={setIsLoggedIn} />}
+              </Stack.Screen>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </StripeProvider>
+    </Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
