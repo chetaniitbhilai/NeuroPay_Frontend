@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  AppState,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -16,14 +17,60 @@ import {
   clearCart,
 } from '../redux/cartSlice';
 import { Ionicons } from '@expo/vector-icons';
-import { useStripe } from '@stripe/stripe-react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { handleStripePayment } from '../utils/handleStripePayment';
+import { launchUPIPayment } from '../utils/handleUPIPayment';
+import { handleUPIPaymentSuccess } from '../utils/handleUPIPaymentSuccess';
 
 
 export default function CartScreen() {
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems);
-  const stripe = useStripe();
+  const appState = useRef(AppState.currentState);
+  const [didInitiateUPI, setDidInitiateUPI] = useState(false);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active' &&
+        didInitiateUPI
+      ) {
+        // ✅ User is back from UPI app
+        Alert.alert(
+          'Confirm Payment',
+          'Did you complete the UPI payment?',
+          [
+            {
+              text: 'Yes',
+              onPress: () => {
+                handleUPIPaymentSuccess(cartItems, totalPrice,'9355844091@ptsbi', dispatch, clearCart);
+              },
+            },
+            {
+              text: 'No',
+              style: 'cancel',
+            },
+          ],
+          { cancelable: false }
+        );
+        setDidInitiateUPI(false); // reset
+      }
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove(); // ✅ cleanup safely
+    };
+  }, [didInitiateUPI]);
+
+  const handleUPIPayment = async () => {
+    const result = await launchUPIPayment(totalPrice);
+    if (result) {
+      setDidInitiateUPI(true);
+    }
+  };
+
+
 
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -52,51 +99,6 @@ export default function CartScreen() {
     </View>
   );
 
-  const handlePayment = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      const totalAmount = cartItems.reduce(
-        (total, item) => total + item.price * item.quantity,
-        0
-      );
-
-      const response = await fetch('http://192.168.1.7:5000/api/payments/create-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, // ✅ Attach JWT
-        },
-        body: JSON.stringify({
-          items: cartItems,
-          totalAmount,
-        }),
-      });
-
-      const { clientSecret } = await response.json();
-      console.log('Client Secret:', clientSecret);
-      const initSheet = await stripe.initPaymentSheet({
-        paymentIntentClientSecret: clientSecret,
-        merchantDisplayName: 'Walmart India', 
-        googlePay: true,  
-        merchantCountryCode: 'IN',      
-      });
-
-
-
-      if (initSheet.error) return Alert.alert('Error', initSheet.error.message);
-
-      const presentSheet = await stripe.presentPaymentSheet();
-      if (presentSheet.error) {
-        Alert.alert('Payment failed', presentSheet.error.message);
-      } else {
-        Alert.alert('Success', 'Payment complete!');
-        dispatch(clearCart());
-      }
-    } catch (err) {
-      Alert.alert('Error', err.message);
-    }
-  };
-
   return (
     <View style={styles.container}>
       {cartItems.length === 0 ? (
@@ -112,9 +114,20 @@ export default function CartScreen() {
           <View style={styles.footer}>
             <Text style={styles.total}>Total: ₹{totalPrice}</Text>
             <View style={styles.actions}>
-              <TouchableOpacity style={styles.payBtn} onPress={handlePayment}>
-                <Text style={styles.payText}>Pay Now</Text>
+              <TouchableOpacity
+                style={styles.payBtn}
+                onPress={() => handleStripePayment(cartItems, totalPrice, dispatch, clearCart)}
+              >
+                <Text style={styles.payText}>Pay with Stripe</Text>
               </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.payBtn, { backgroundColor: '#4caf50' }]}
+                onPress={handleUPIPayment}
+              >
+                <Text style={styles.payText}>Pay with UPI</Text>
+              </TouchableOpacity>
+
               <TouchableOpacity
                 style={styles.binBtn}
                 onPress={() => dispatch(clearCart())}

@@ -12,6 +12,21 @@ import { StripeProvider } from '@stripe/stripe-react-native';  // Stripe wrapper
 
 const Stack = createNativeStackNavigator();
 
+import * as Linking from 'expo-linking';
+import PaymentSuccess from './screens/PaymentSucess';
+import PaymentCancel from './screens/PaymentFailure';
+
+const linking = {
+  prefixes: ['yourappscheme://'],
+  config: {
+    screens: {
+      PaymentSuccess: 'payment-success',
+      PaymentCancel: 'payment-cancel',
+    },
+  },
+};
+
+
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -22,7 +37,7 @@ export default function App() {
         merchantIdentifier="merchant.com.walmart.hack athon" // iOS only
         merchantCountryCode="IN"
       >
-        <NavigationContainer>
+        <NavigationContainer linking={linking}>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             {!isLoggedIn ? (
               <>
@@ -34,9 +49,13 @@ export default function App() {
                 </Stack.Screen>
               </>
             ) : (
-              <Stack.Screen name="MainTabs">
-                {(props) => <TabNavigator {...props} setIsLoggedIn={setIsLoggedIn} />}
-              </Stack.Screen>
+              <>
+                <Stack.Screen name="MainTabs">
+                  {(props) => <TabNavigator {...props} setIsLoggedIn={setIsLoggedIn} />}
+                </Stack.Screen>
+                <Stack.Screen name="PaymentSuccess" component={PaymentSuccess} />
+                <Stack.Screen name="PaymentCancel" component={PaymentCancel} />
+              </>
             )}
           </Stack.Navigator>
         </NavigationContainer>
