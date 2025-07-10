@@ -11,6 +11,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUserProfile, logoutUser } from '../services/authService';
 import { getPaymentHistory } from '../utils/paymentService'; // ✅ import history API
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function ProfileScreen({ navigation, setIsLoggedIn }) {
   const [user, setUser] = useState(null);
@@ -34,9 +35,11 @@ export default function ProfileScreen({ navigation, setIsLoggedIn }) {
     }
   };
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchProfile();
+    }, [])
+  );
 
   const handleLogout = async () => {
     try {
@@ -83,6 +86,10 @@ export default function ProfileScreen({ navigation, setIsLoggedIn }) {
         </Text>
 
         <View style={{ marginTop: 20 }}>
+          <Button title="View Fraud Analytics" color="#ff6f00" onPress={() => navigation.navigate('FraudAnalytics')} />
+        </View>
+
+        <View style={{ marginTop: 10 }}>
           <Button title="Logout" color="#d9534f" onPress={handleLogout} />
         </View>
       </View>
@@ -93,9 +100,25 @@ export default function ProfileScreen({ navigation, setIsLoggedIn }) {
           <Text style={styles.heading}>🧾 Past Orders</Text>
           {orders.map((order, index) => (
             <View key={order._id || index} style={styles.orderItem}>
-              <Text style={styles.orderAmount}>
-                ₹{order.amount} • {new Date(order.date).toLocaleString()}
-              </Text>
+              <View style={styles.orderHeader}>
+                <Text style={styles.orderAmount}>
+                  ₹{order.amount} • {new Date(order.date).toLocaleString()}
+                </Text>
+                {order.fraudDetection && order.fraudDetection.isChecked && (
+                  <View style={[
+                    styles.riskBadge,
+                    {
+                      backgroundColor:
+                        order.fraudDetection.riskLevel === 'HIGH' ? '#ff3d00' :
+                          order.fraudDetection.riskLevel === 'MEDIUM' ? '#ff9800' : '#4caf50'
+                    }
+                  ]}>
+                    <Text style={styles.riskText}>
+                      {order.fraudDetection.riskLevel}
+                    </Text>
+                  </View>
+                )}
+              </View>
               <Text style={styles.orderItems}>
                 {order.items.map((i) => i.name).join(', ')}
               </Text>
@@ -150,5 +173,22 @@ const styles = StyleSheet.create({
   orderItems: {
     color: '#666',
     fontSize: 14,
+  },
+  orderHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  riskBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginLeft: 8,
+  },
+  riskText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
 });

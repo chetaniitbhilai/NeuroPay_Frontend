@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://192.168.1.108:5000/api/auth'; // 🔁 Replace with actual backend URL
+const API_URL = 'http://192.168.29.56:5002/api/auth'; // Node.js backend for auth (port 5002)
 
 export const loginUser = async (email, password) => {
   try {

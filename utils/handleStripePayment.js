@@ -1,12 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import { initPaymentSheet, presentPaymentSheet } from '@stripe/stripe-react-native';
+import { getFraudMessage } from '../services/fraudService';
 
 export const handleStripePayment = async (cartItems, totalAmount, dispatch, clearCart) => {
   try {
     const token = await AsyncStorage.getItem('token');
 
-    const response = await fetch('http://192.168.1.108:5000/api/payments/create-intent', {
+    const response = await fetch('http://192.168.29.56:5002/api/payments/create-intent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -21,7 +22,35 @@ export const handleStripePayment = async (cartItems, totalAmount, dispatch, clea
       }),
     });
 
-    const { clientSecret, paymentIntentId } = await response.json();
+    const { clientSecret, paymentIntentId, fraudResult } = await response.json();
+
+    // Check for fraud and show warning if needed
+    if (fraudResult && fraudResult.risk_level === 'HIGH') {
+      const fraudMessage = getFraudMessage(fraudResult);
+      const shouldContinue = await new Promise((resolve) => {
+        Alert.alert(
+          fraudMessage.title,
+          fraudMessage.message,
+          [
+            {
+              text: 'Cancel Payment',
+              style: 'cancel',
+              onPress: () => resolve(false),
+            },
+            {
+              text: 'Continue Anyway',
+              style: 'default',
+              onPress: () => resolve(true),
+            },
+          ],
+          { cancelable: false }
+        );
+      });
+
+      if (!shouldContinue) {
+        return; // User cancelled the payment
+      }
+    }
 
     const initSheet = await initPaymentSheet({
       paymentIntentClientSecret: clientSecret,
@@ -38,7 +67,7 @@ export const handleStripePayment = async (cartItems, totalAmount, dispatch, clea
       Alert.alert('Payment failed', presentSheet.error.message);
     } else {
       // ✅ Call backend to mark payment as succeeded
-      await fetch('http://192.168.1.108:5000/api/payments/mark-success', {
+      await fetch('http://192.168.29.56:5002/api/payments/mark-success', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

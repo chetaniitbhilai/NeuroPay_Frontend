@@ -6,6 +6,7 @@ import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import TabNavigator from './navigation/TabNavigator';
 import SensorLogger from './components/SensorLogger';
+import FraudAnalyticsScreen from './screens/FraudAnalyticsScreen';
 
 import { Provider } from 'react-redux';         // Redux store provider
 import store from './redux/store';              // Your Redux store
@@ -55,6 +56,7 @@ export default function App() {
                 <Stack.Screen name="MainTabs">
                   {(props) => <TabNavigator {...props} setIsLoggedIn={setIsLoggedIn} />}
                 </Stack.Screen>
+                <Stack.Screen name="FraudAnalytics" component={FraudAnalyticsScreen} />
                 <Stack.Screen name="PaymentSuccess" component={PaymentSuccess} />
                 <Stack.Screen name="PaymentCancel" component={PaymentCancel} />
               </>

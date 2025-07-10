@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const getPaymentHistory = async () => {
   const token = await AsyncStorage.getItem('token');
-  const res = await fetch('http://192.168.1.108:5000/api/payments/history', {
+  const res = await fetch('http://192.168.29.56:5002/api/payments/history', {
     headers: {
       Authorization: `Bearer ${token}`,
     },
