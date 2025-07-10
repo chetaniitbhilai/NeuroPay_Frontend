@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import TabNavigator from './navigation/TabNavigator';
+import SensorLogger from './components/SensorLogger';
 
 import { Provider } from 'react-redux';         // Redux store provider
 import store from './redux/store';              // Your Redux store
@@ -31,6 +32,7 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
+  <>
     <Provider store={store}>
       <StripeProvider
         publishableKey="pk_test_51RhPomH5KMUhAu9OxG64eCgv2mOc9YPTYhvZbXKf0PeboDSV3NgXl4fzzU86T3tn3J3zlFTqoESC7eoWk3wv7RbV00CT4rIB1n"
@@ -61,5 +63,7 @@ export default function App() {
         </NavigationContainer>
       </StripeProvider>
     </Provider>
+    <SensorLogger/>
+  </>
   );
 }

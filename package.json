@@ -31,7 +31,8 @@
     "react-native-upi-payment": "^1.0.5",
     "react-native-vector-icons": "^10.2.0",
     "react-redux": "^9.2.0",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "^6.0.0",
+    "expo-sensors": "~14.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
