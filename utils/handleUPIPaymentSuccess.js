@@ -9,7 +9,7 @@ export const handleUPIPaymentSuccess = async (cartItems, totalAmount, vpa, dispa
   try {
     const token = await AsyncStorage.getItem('token');
 
-    const res = await fetch('http://192.168.29.56:5002/api/payments/upi', {
+    const res = await fetch('http://192.168.1.108:5000/api/payments/upi', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

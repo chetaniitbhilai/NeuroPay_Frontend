@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://192.168.29.56:5002/api/fraud'; // Updated to correct backend port
+const API_URL = 'http://192.168.1.108:5000/api/fraud'; // Updated to correct backend port
 
 export const getFraudAnalytics = async () => {
   try {

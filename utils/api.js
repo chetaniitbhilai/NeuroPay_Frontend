@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Change baseURL as per your environment
 const api = axios.create({
-  baseURL: 'http://192.168.29.56:5002/api', // for physical device, replace with IP
+  baseURL: 'http://192.168.1.108:5000/api', // for physical device, replace with IP
 });
 
 export const getAllProducts = async () => {

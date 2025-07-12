@@ -7,7 +7,7 @@ export const handleStripePayment = async (cartItems, totalAmount, dispatch, clea
   try {
     const token = await AsyncStorage.getItem('token');
 
-    const response = await fetch('http://192.168.29.56:5002/api/payments/create-intent', {
+    const response = await fetch('http://192.168.1.108:5000/api/payments/create-intent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
