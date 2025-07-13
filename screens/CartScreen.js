@@ -132,7 +132,7 @@ export default function CartScreen() {
                 style={styles.binBtn}
                 onPress={() => dispatch(clearCart())}
               >
-                <Ionicons name="trash" size={22} color="#fff" />
+                <Ionicons name="trash" size={24} color="#fff" />
               </TouchableOpacity>
             </View>
           </View>

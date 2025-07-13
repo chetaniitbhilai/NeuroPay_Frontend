@@ -71,6 +71,8 @@ export default function ProductScreen() {
   );
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+
     <SafeAreaView style={styles.container}>
       <Text style={styles.heading}>Shop by Category</Text>
 
@@ -130,15 +132,23 @@ export default function ProductScreen() {
         transparent
         onRequestClose={() => setModalVisible(false)}
       >
+        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+
         <View style={styles.modalOverlay}>
           <View style={styles.bottomSheet}>
             {selectedProduct && (
               <>
-                <Image
-                  source={{ uri: selectedProduct.image }}
-                  style={styles.modalImage}
-                  resizeMode="contain"
-                />
+                {selectedProduct.image ? (
+                  <Image
+                    source={{ uri: selectedProduct.image }}
+                    style={styles.modalImage}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <View style={[styles.modalImage, { justifyContent: 'center', alignItems: 'center' }]}>
+                    <Text>No Image</Text>
+                  </View>
+                )}
                 <Text style={styles.modalTitle}>{selectedProduct.name}</Text>
                 <Text style={styles.modalPrice}>₹ {selectedProduct.price}</Text>
                     <TouchableOpacity
@@ -158,8 +168,12 @@ export default function ProductScreen() {
             )}
           </View>
         </View>
+        </TouchableWithoutFeedback>
+
       </Modal>
     </SafeAreaView>
+    </TouchableWithoutFeedback>
+
   );
 }
 
