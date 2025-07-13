@@ -101,11 +101,11 @@ export default function SensorLogger() {
     }
   };
 
-  return (
-    <View style={{ padding: 20 }}>
-      <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{status}</Text>
-      <Text style={{ marginTop: 10 }}>Latest 9x1 vector:</Text>
-      <Text>{JSON.stringify(latestVector, null, 2)}</Text>
-    </View>
-  );
+  // return (
+  //   <View style={{ padding: 20 }}>
+  //     <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{status}</Text>
+  //     <Text style={{ marginTop: 10 }}>Latest 9x1 vector:</Text>
+  //     <Text>{JSON.stringify(latestVector, null, 2)}</Text>
+  //   </View>
+  // );
 }

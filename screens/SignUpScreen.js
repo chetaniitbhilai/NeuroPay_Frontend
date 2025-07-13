@@ -21,6 +21,8 @@ export default function SignupScreen({ navigation, setIsLoggedIn }) {
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
   const [pincode, setPincode] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSignup = async () => {
     if (!name || !email || !password || !confirmPassword || !street || !city || !country || !pincode) {
@@ -69,20 +71,32 @@ export default function SignupScreen({ navigation, setIsLoggedIn }) {
           keyboardType="email-address"
           onChangeText={setEmail}
         />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.passwordInput}
+            placeholder="Password"
+            value={password}
+            secureTextEntry={!showPassword}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Text style={styles.eye}>{showPassword ? '🙈' : '👁️'}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.passwordContainer}>
         <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={password}
-          secureTextEntry
-          onChangeText={setPassword}
-        />
-        <TextInput
-          style={styles.input}
+          style={styles.passwordInput}
           placeholder="Confirm Password"
           value={confirmPassword}
-          secureTextEntry
+          secureTextEntry={!showConfirmPassword}
           onChangeText={setConfirmPassword}
         />
+        <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+          <Text style={styles.eye}>{showConfirmPassword ? '🙈' : '👁️'}</Text>
+        </TouchableOpacity>
+      </View>
+
 
         <Text style={styles.subheading}>📍 Address</Text>
         <TextInput style={styles.input} placeholder="Street" value={street} onChangeText={setStreet} />
@@ -101,6 +115,26 @@ export default function SignupScreen({ navigation, setIsLoggedIn }) {
 }
 
 const styles = StyleSheet.create({
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f2f2f2',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 14,
+    paddingRight: 12,
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 12,
+    fontSize: 16,
+  },
+  eye: {
+    fontSize: 18,
+    padding: 4,
+  },
+
   container: {
     flexGrow: 1,
     padding: 20,

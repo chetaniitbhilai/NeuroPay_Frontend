@@ -16,6 +16,8 @@ export default function LoginScreen({ navigation, setIsLoggedIn }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+    const [showPassword, setShowPassword] = useState(false);
+
   const handleLogin = async () => {
     try {
       const user = await loginUser(email, password);
@@ -39,13 +41,18 @@ export default function LoginScreen({ navigation, setIsLoggedIn }) {
         keyboardType="email-address"
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        secureTextEntry
-        onChangeText={setPassword}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Password"
+          value={password}
+          secureTextEntry={!showPassword}
+          onChangeText={setPassword}
+        />
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <Text style={styles.eye}>{showPassword ? '🙈' : '👁️'}</Text>
+        </TouchableOpacity>
+      </View>
 
       <Button title="Login" onPress={handleLogin} />
 
@@ -57,6 +64,25 @@ export default function LoginScreen({ navigation, setIsLoggedIn }) {
 }
 
 const styles = StyleSheet.create({
+    passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 14,
+    paddingRight: 12,
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 12,
+    fontSize: 16,
+  },
+  eye: {
+    fontSize: 18,
+    padding: 4,
+  },
   container: { flex: 1, justifyContent: 'center', padding: 20 },
   heading: { fontSize: 26, fontWeight: 'bold', textAlign: 'center', marginBottom: 30 },
   input: {

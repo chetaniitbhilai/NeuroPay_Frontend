@@ -9,7 +9,14 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Modal,
+  Image,
+  Button,
 } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../redux/cartSlice'; // Adjust path if needed
+import { TouchableWithoutFeedback, Keyboard } from 'react-native';
+
 
 import ProductCard from '../components/ProductCard';
 import { getAllProducts } from '../utils/api';
@@ -21,6 +28,10 @@ export default function ProductScreen() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const dispatch = useDispatch();
+
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -45,10 +56,18 @@ export default function ProductScreen() {
     return matchCategory && matchSearch;
   });
 
+  const openProductModal = (product) => {
+    setSelectedProduct(product);
+    setModalVisible(true);
+  };
+
   const renderItem = ({ item }) => (
-    <View style={styles.cardWrapper}>
+    <TouchableOpacity
+      onPress={() => openProductModal(item)}
+      style={styles.cardWrapper}
+    >
       <ProductCard product={item} />
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -103,6 +122,43 @@ export default function ProductScreen() {
           renderItem={renderItem}
         />
       )}
+
+      {/* Modal Bottom Sheet */}
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.bottomSheet}>
+            {selectedProduct && (
+              <>
+                <Image
+                  source={{ uri: selectedProduct.image }}
+                  style={styles.modalImage}
+                  resizeMode="contain"
+                />
+                <Text style={styles.modalTitle}>{selectedProduct.name}</Text>
+                <Text style={styles.modalPrice}>₹ {selectedProduct.price}</Text>
+                    <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={() => {
+                      if (selectedProduct) {
+                        dispatch(addToCart(selectedProduct));
+                        setModalVisible(false);
+                      }
+                    }}
+                  >
+                  <Text style={styles.addButtonText}>Add to Cart</Text>
+                </TouchableOpacity>
+
+                <Button title="Close" onPress={() => setModalVisible(false)} />
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -171,5 +227,46 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 5,
     marginBottom: 10,
+  },
+
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'flex-end',
+  },
+  bottomSheet: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    alignItems: 'center',
+  },
+  modalImage: {
+    width: 150,
+    height: 150,
+    marginBottom: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  modalPrice: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 16,
+  },
+  addButton: {
+    backgroundColor: '#ff6f00',
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
