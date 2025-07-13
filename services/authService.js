@@ -16,12 +16,11 @@ export const loginUser = async (email, password) => {
       throw new Error(data.error || 'Login failed');
     }
 
-    // Optionally store token in AsyncStorage (if using JWT)
     if (data.token) {
       await AsyncStorage.setItem('token', data.token);
     }
 
-    return data; // user data or token
+    return data; 
   } catch (error) {
     throw error;
   }

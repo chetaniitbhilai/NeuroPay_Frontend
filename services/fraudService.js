@@ -31,6 +31,8 @@ export const getFraudAnalytics = async () => {
   }
 };
 
+
+// not being ued in the app, but can be used for future fraud checks
 export const checkTransactionFraud = async (paymentId) => {
   try {
     const token = await AsyncStorage.getItem('token');
@@ -50,7 +52,7 @@ export const checkTransactionFraud = async (paymentId) => {
 
     const data = await response.json();
 
-    if (!response.ok) {
+    if (!response.ok) { 
       throw new Error(data.error || 'Failed to check transaction fraud');
     }
 
